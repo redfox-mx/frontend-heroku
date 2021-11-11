@@ -1,5 +1,4 @@
-ARG NODE_VERSION=14-alpine
-ARG BUILD_DIR=dist
+ARG NODE_VERSION=lts-alpine
 
 ###   BUILD STAGE   ###
 
@@ -10,11 +9,11 @@ FROM node:${NODE_VERSION} AS builder
 WORKDIR /usr/app
 
 # 2.- Copiamos solo los pacage*.json para prevenir instalacion de dependencias
-#    de manera inecesaria. (Docker cache)
+#     de manera inecesaria. (Docker cache)
 COPY package.json package-lock.json ./
 
 # 3.- Instalamos las dependencias necesarias
-RUN npm install
+RUN npm install --silent
 
 # 4.- Copiamos todo el contenido actual para poder construir nuestra aplicacion
 COPY . .
@@ -31,6 +30,6 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # 7.- Copiamos nuestros archivos de configuracion
 COPY nginx /etc/nginx
-COPY --from=builder /usr/app/${BUILD_DIR} /usr/share/nginx/html
+COPY --from=builder /usr/app/dist /usr/share/nginx/html
 
 CMD ["nginx", "-g", "daemon off;"]
